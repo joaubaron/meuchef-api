@@ -1655,38 +1655,6 @@ function voltarParaListaFavoritos() {
     filtrarFavoritos();
 }
 
-// === IMPORT/EXPORT FUNCTIONS ===
-function salvarArquivo(dirEntry, fileName, blob) {
-    dirEntry.getFile(fileName, {
-            create: true,
-            exclusive: false
-        },
-        function(fileEntry) {
-            fileEntry.createWriter(
-                function(fileWriter) {
-                    fileWriter.onwriteend = function() {
-                        showPersistentModal(fileName);
-                        console.log("Arquivo salvo: " + fileEntry.fullPath);
-                    };
-                    fileWriter.onerror = function(e) {
-                        console.error("Erro ao escrever:", e);
-                        showCustomModal("Erro ao exportar receitas");
-                    };
-                    fileWriter.write(blob);
-                },
-                function(error) {
-                    console.error("Erro ao criar escritor:", error);
-                    showCustomModal("Erro ao exportar receitas");
-                }
-            );
-        },
-        function(error) {
-            console.error("Erro ao criar arquivo:", error);
-            showCustomModal("Erro ao exportar receitas");
-        }
-    );
-}
-
 function exportarFavoritosComCategorias() {
     if (AppState.receitasFavoritas.length === 0) {
         showCustomModal("Nenhuma receita favorita para exportar.");
@@ -1830,37 +1798,6 @@ function importarFavoritos(event) {
     reader.readAsText(file);
 }
 
-function showPersistentModal(fileName) {
-    const existingModal = document.querySelector('.custom-modal-overlay');
-    if (existingModal) existingModal.remove();
-
-    const overlay = document.createElement('div');
-    overlay.className = 'custom-modal-overlay';
-
-    const modalContent = document.createElement('div');
-    modalContent.className = 'custom-modal-content';
-    modalContent.innerHTML = `
-        <p style="font-size: 13px; line-height: 1.4;">
-            Receitas exportadas para a pasta Downloads como:
-            <br><br>
-            <span style="color: #8d6e63; font-weight: 600;">${fileName}</span>
-            <br><br>
-            <span style="color: #5d4037; font-size: 12px;">💾 Salve este arquivo em local seguro para importar depois</span>
-        </p>
-        <div style="text-align: center; margin-top: 16px;">
-            <button id="btnFecharModal" style="padding: 8px 16px; font-size: 14px; font-weight: 600; color: #6a4c93; background: #f3e5f5; border: 1px solid #ce93d8; border-radius: 8px;">OK</button>
-        </div>
-    `;
-
-    overlay.appendChild(modalContent);
-    document.body.appendChild(overlay);
-
-    document.getElementById('btnFecharModal').addEventListener('click', () => {
-        overlay.remove();
-    });
-}
-
-// === SHARE FUNCTION ===
 // === SHARE FUNCTION ===
 function compartilharReceita(titulo, conteudoHTML) {
     const tempDiv = document.createElement('div');
