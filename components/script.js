@@ -771,7 +771,7 @@ async function gerarReceitaComIA(ingredientes, alternativa = false, tipoPrato = 
         
         console.log('Receita gerada com sucesso!');
         return data.content;
-        
+         
     } catch (error) {
         console.error('Erro na API do Vercel:', error);
         throw new Error('Falha ao gerar receita. Tente novamente.');
