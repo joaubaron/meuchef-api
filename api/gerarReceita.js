@@ -1,5 +1,11 @@
 // /api/gerarReceita.js
 export default async function handler(req, res) {
+  // Adicionar CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
@@ -13,7 +19,8 @@ export default async function handler(req, res) {
     const prompt = `Gere uma receita usando: ${Array.isArray(ingredientes) ? ingredientes.join(', ') : ingredientes}.
 Tipo: ${tipoPrato}. Alternativa: ${!!alternativa}. Para ${quantidadePessoas} pessoa(s).`;
 
-    const apiRes = await fetch('https://api.groq.ai/v1/chat/completions', {
+    // URL CORRIGIDA ↓↓↓
+    const apiRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -23,12 +30,12 @@ Tipo: ${tipoPrato}. Alternativa: ${!!alternativa}. Para ${quantidadePessoas} pes
       body: JSON.stringify({
         model: 'llama-3.1-8b-instant',
         messages: [
-          { role: 'system', content: 'Você é um chef brasileiro experiente.' },
+          { role: 'system', content: 'Você é um chef brasileiro experiente. Responda apenas em JSON.' },
           { role: 'user', content: prompt }
         ],
         temperature: 0.5,
         top_p: 0.8,
-        max_tokens: 1000,
+        max_tokens: 1400,
         stream: false
       })
     });
@@ -41,7 +48,7 @@ Tipo: ${tipoPrato}. Alternativa: ${!!alternativa}. Para ${quantidadePessoas} pes
     const data = await apiRes.json();
     const content = data?.choices?.[0]?.message?.content ?? null;
 
-    return res.status(200).json({ content, raw: data });
+    return res.status(200).json({ content });
   } catch (err) {
     console.error('Erro na function gerarReceita:', err);
     return res.status(500).json({ error: 'Internal server error' });
