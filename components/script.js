@@ -56,8 +56,6 @@ const categoriasPredefinidas = [
     }
 ];
 
-const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-
 const CONFIG = Object.freeze({
     API_TIMEOUT: 10000,
     RETRY_BASE_DELAY: 1000,
@@ -743,54 +741,40 @@ REGRAS IMPORTANTES:
 
 async function gerarReceitaComIA(ingredientes, alternativa = false, tipoPrato = "comida") {
     const quantidadePessoas = extrairQuantidadePessoas(ingredientes);
-    const prompt = construirPromptReceita(ingredientes, quantidadePessoas, tipoPrato, alternativa);
-
-    console.log('Fazendo requisição para API...');
-
+    
+    console.log('Chamando API do Vercel...', ingredientes);
+    
     try {
-        const response = await fetchComRetry(GROQ_API_URL, {
+        const response = await fetch('https://meuchef-api.vercel.app/api/gerarReceita', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getGroqKey()}`,  // ✅ CORRIGIDO!
-                'User-Agent': 'MeuChef-App/1.0'
+            headers: { 
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                model: "llama-3.1-8b-instant",
-                messages: [{
-                    role: "system",
-                    content: SYSTEM_PROMPT
-                }, {
-                    role: "user",
-                    content: prompt
-                }],
-                temperature: 0.5,
-                top_p: 0.8,
-                max_tokens: CONFIG.MAX_TOKENS,
-                stream: false
+            body: JSON.stringify({ 
+                ingredientes, 
+                alternativa, 
+                tipoPrato,
+                quantidadePessoas 
             })
         });
-
-        let data;
-        try {
-            data = await response.json();
-        } catch (jsonError) {
-            console.error('Erro ao parsear resposta JSON:', jsonError);
-            throw new Error('Erro ao interpretar resposta da API. JSON inválido.');
+        
+        if (!response.ok) {
+            const erroText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${erroText}`);
         }
-
-        const content = data?.choices?.[0]?.message?.content;
-        if (!content) {
-            console.error('Resposta da API incompleta:', data);
-            throw new Error('Resposta da API incompleta ou inválida');
+        
+        const data = await response.json();
+        
+        if (!data.content) {
+            throw new Error('Resposta da API sem conteúdo');
         }
-
-        console.log('Receita gerada com sucesso! Conteúdo:', content.substring(0, 100) + '...');
-        return content;
+        
+        console.log('Receita gerada com sucesso!');
+        return data.content;
         
     } catch (error) {
-        console.error('Erro completo na geração:', error);
-        throw error;
+        console.error('Erro na API do Vercel:', error);
+        throw new Error('Falha ao gerar receita. Tente novamente.');
     }
 }
 
