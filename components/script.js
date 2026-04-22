@@ -1693,11 +1693,6 @@ function exportarFavoritosComCategorias() {
         return;
     }
 
-    if (!window.cordova || !cordova.file) {
-        showCustomModal("Exportação disponível apenas no app Android.");
-        return;
-    }
-
     migrarReceitasAntigas();
 
     const now = new Date();
@@ -1726,39 +1721,17 @@ function exportarFavoritosComCategorias() {
     });
 
     const jsonData = JSON.stringify(dadosExportacao, null, 2);
-    const blob = new Blob([jsonData], {
-        type: 'application/json'
-    });
-
-    const directoryPath = cordova.file.externalRootDirectory + "Download/";
-
-    window.resolveLocalFileSystemURL(directoryPath,
-        function(dirEntry) {
-            salvarArquivo(dirEntry, fileName, blob);
-        },
-        function(error) {
-            console.warn("Diretório de Downloads não encontrado. Tentando criar:", error);
-            window.resolveLocalFileSystemURL(cordova.file.externalRootDirectory,
-                function(rootEntry) {
-                    rootEntry.getDirectory("Download", {
-                            create: true
-                        },
-                        function(dirEntry) {
-                            salvarArquivo(dirEntry, fileName, blob);
-                        },
-                        function(error) {
-                            console.error("Erro ao criar pasta Download: ", error);
-                            showCustomModal("Erro ao acessar sistema de arquivos. Verifique as permissões.");
-                        }
-                    );
-                },
-                function(error) {
-                    console.error("Erro ao acessar armazenamento externo: ", error);
-                    showCustomModal("Erro no sistema de arquivos. Verifique as permissões.");
-                }
-            );
-        }
-    );
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showCustomModal(`✅ Receitas exportadas como ${fileName}`);
 }
 
 function importarFavoritos(event) {
@@ -1888,135 +1861,25 @@ function showPersistentModal(fileName) {
 }
 
 // === SHARE FUNCTION ===
+// === SHARE FUNCTION ===
 function compartilharReceita(titulo, conteudoHTML) {
-    // Criar elemento temporário para parsear o HTML
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = conteudoHTML;
-    
-    // Extrair apenas o conteúdo da receita (dentro de .recipe-output)
     const recipeOutput = tempDiv.querySelector('.recipe-output');
     let conteudoParaCompartilhar = recipeOutput ? recipeOutput.innerHTML : conteudoHTML;
-    
-    // REMOVER O TÍTULO DUPLICADO - CORREÇÃO DEFINITIVA
-    // Primeiro: remover via regex (mais comum)
-    conteudoParaCompartilhar = conteudoParaCompartilhar
-        .replace(/<strong>[^<]*<\/strong>(\s*<br>\s*)*/i, '') // Remove título + quebras de linha após
-        .replace(/<div class="botoes-receita">[\s\S]*?<\/div>/gi, '') // Remove botões
-        .replace(/<div class="bom-apetite">[\s\S]*?<\/div>/gi, ''); // Remove rodapé
-    
-    // Segundo: se ainda tiver título, remover a primeira linha manualmente
-    const tempDiv2 = document.createElement('div');
-    tempDiv2.innerHTML = conteudoParaCompartilhar;
-    const textoTeste = tempDiv2.textContent || tempDiv2.innerText || '';
-    
-    if (textoTeste.trim().startsWith(titulo)) {
-        // Se ainda começa com o título, remover a primeira linha
-        const linhas = conteudoParaCompartilhar.split('\n');
-        let encontrouTitulo = false;
-        
-        conteudoParaCompartilhar = linhas.filter(linha => {
-            if (!encontrouTitulo && linha.includes(titulo)) {
-                encontrouTitulo = true;
-                return false; // Remove a linha do título
-            }
-            return true;
-        }).join('\n');
-    }
-    
-    // Processar o conteúdo mantendo a estrutura original
-    const conteudoLimpo = conteudoParaCompartilhar
-        .replace(/<br\s*\/?>/gi, '\n') // Convert <br> para quebras de linha
-        .replace(/<strong>(.*?)<\/strong>/g, '$1') // Remove tags strong mas mantém texto
-        .replace(/<[^>]+>/g, '') // Remove todas outras tags HTML
-        .replace(/\n{3,}/g, '\n\n') // Normaliza múltiplas quebras de linha
-        .replace(/^\s+|\s+$/g, '') // Remove espaços no início/fim
-        .replace(/(\n)\s+/g, '$1'); // Remove espaços no início de linhas
-    
-    // Formatar o texto - usar apenas o título passado como parâmetro
+    conteudoParaCompartilhar = conteudoParaCompartilhar.replace(/<strong>[^<]*<\/strong>(\s*<br>\s*)*/i, '').replace(/<div class="botoes-receita">[\s\S]*?<\/div>/gi, '').replace(/<div class="bom-apetite">[\s\S]*?<\/div>/gi, '');
+    const conteudoLimpo = conteudoParaCompartilhar.replace(/<br\s*\/?>/gi, '\n').replace(/<strong>(.*?)<\/strong>/g, '$1').replace(/<[^>]+>/g, '').replace(/\n{3,}/g, '\n\n').replace(/^\s+|\s+$/g, '').replace(/(\n)\s+/g, '$1');
     let textoFormatado = `${titulo}\n\n${conteudoLimpo.trim()}`;
-    
-    // Garantir formatação consistente dos títulos das seções
-    textoFormatado = textoFormatado
-        .replace(/(🌿 Ingredientes)/, '\n$1\n')
-        .replace(/(🥘 Modo de Preparo)/, '\n$1\n')
-        .replace(/(⏳ Tempo de Preparo)/, '\n$1\n')
-        .replace(/(🧺 Rendimento)/, '\n$1\n')
-        .replace(/(⭐ Dicas do Chef)/, '\n$1\n')
-        .replace(/(🍹 Acompanhamento)/, '\n$1\n')
-        .replace(/(🥗 Guarnição)/, '\n$1\n');
-    
-    // Corrigir a numeração do modo de preparo
-    textoFormatado = textoFormatado.replace(
-        /(🥘 Modo de Preparo\n)([\s\S]*?)(?=\n\n⏳|\n\n🧺|\n\n⭐|\n\n🍹|\n\n🥗|$)/,
-        (match, tituloSecao, conteudoSecao) => {
-            const passos = conteudoSecao.split('\n')
-                .filter(passo => passo.trim())
-                .map((passo, index) => {
-                    // Remove números existentes e readiciona corretamente
-                    const passoLimpo = passo.replace(/^\s*\d+\.\s*/, '').trim();
-                    return passoLimpo ? `${index + 1}. ${passoLimpo}` : '';
-                })
-                .filter(passo => passo !== '')
-                .join('\n');
-            
-            return `${tituloSecao}${passos}\n`;
-        }
-    );
-    
-    // Limpar múltiplas quebras de linha consecutivas
+    textoFormatado = textoFormatado.replace(/(🌿 Ingredientes)/, '\n$1\n').replace(/(🥘 Modo de Preparo)/, '\n$1\n').replace(/(⏳ Tempo de Preparo)/, '\n$1\n').replace(/(🧺 Rendimento)/, '\n$1\n').replace(/(⭐ Dicas do Chef)/, '\n$1\n').replace(/(🍹 Acompanhamento)/, '\n$1\n').replace(/(🥗 Guarnição)/, '\n$1\n');
+    textoFormatado = textoFormatado.replace(/(🥘 Modo de Preparo\n)([\s\S]*?)(?=\n\n⏳|\n\n🧺|\n\n⭐|\n\n🍹|\n\n🥗|$)/, (match, tituloSecao, conteudoSecao) => { const passos = conteudoSecao.split('\n').filter(passo => passo.trim()).map((passo, index) => { const passoLimpo = passo.replace(/^\s*\d+\.\s*/, '').trim(); return passoLimpo ? `${index + 1}. ${passoLimpo}` : ''; }).filter(passo => passo !== '').join('\n'); return `${tituloSecao}${passos}\n`; });
     textoFormatado = textoFormatado.replace(/\n{3,}/g, '\n\n');
-    
-    // Adicionar assinatura
     const shareText = `${textoFormatado}\n\nQualquer um pode cozinhar!\nBom apetite!`;
-    
-    // Resto do código de compartilhamento
     const scrollPosition = window.scrollY || window.pageYOffset;
-    const restaurarScroll = () => {
-        setTimeout(() => {
-            window.scrollTo(0, scrollPosition);
-        }, 100);
-    };
-    
-    if (window.cordova && window.plugins && window.plugins.share) {
-        const caminhoImagem = cordova.file.applicationDirectory + 'www/imagens/assbaron.png';
-        window.plugins.share.show({
-                text: shareText,
-                subject: `${titulo}`,
-                fileUrl: caminhoImagem
-            },
-            function() {
-                console.log("Compartilhado com sucesso via plugin!");
-                restaurarScroll();
-            },
-            function(error) {
-                console.error("Erro ao compartilhar via plugin:", error);
-                window.plugins.share.show({
-                    text: shareText,
-                    subject: `${titulo}`
-                }, restaurarScroll, restaurarScroll);
-            }
-        );
-    } else if (navigator.share) {
-        navigator.share({
-            title: `${titulo}`,
-            text: shareText
-        }).then(() => {
-            console.log('Compartilhado com sucesso via Web Share');
-            restaurarScroll();
-        }).catch(err => {
-            console.log('Erro ao compartilhar via Web Share:', err);
-            restaurarScroll();
-        });
+    const restaurarScroll = () => { setTimeout(() => window.scrollTo(0, scrollPosition), 100); };
+    if (navigator.share) {
+        navigator.share({ title: titulo, text: shareText }).then(() => restaurarScroll()).catch(() => restaurarScroll());
     } else {
-        navigator.clipboard.writeText(shareText)
-            .then(() => {
-                showCustomModal('Receita copiada para a área de transferência!');
-                restaurarScroll();
-            }).catch(err => {
-                console.error('Falha ao copiar:', err);
-                showCustomModal('Não foi possível compartilhar ou copiar.');
-                restaurarScroll();
-            });
+        navigator.clipboard.writeText(shareText).then(() => { showCustomModal('📋 Receita copiada!'); restaurarScroll(); }).catch(() => { showCustomModal('❌ Não foi possível compartilhar'); restaurarScroll(); });
     }
 }
 
