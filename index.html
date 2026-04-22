@@ -10,6 +10,12 @@
 <link rel="stylesheet" href="css/style.css" />
 <link rel="stylesheet" href="components/fontawesome/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6a4c93">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MeuChef">
+<link rel="apple-touch-icon" href="imagens/icon-192.png">
 </head>
 
 <body>
@@ -142,7 +148,16 @@ event.preventDefault(); // Evita voltar para saude.html
 });
 </script>
 
-<script src="cordova.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('Service Worker registrado!', reg))
+      .catch(err => console.error('Erro ao registrar SW:', err));
+  });
+}
+</script>
+
 <script src="components/config.js"></script>
 <script src="components/script.js"></script>
 </body>
