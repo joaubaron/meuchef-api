@@ -16,10 +16,31 @@ export default async function handler(req, res) {
     const GROQ_KEY = process.env.GROQ_KEY;
     if (!GROQ_KEY) return res.status(500).json({ error: 'Server misconfiguration' });
 
-    const prompt = `Gere uma receita usando: ${Array.isArray(ingredientes) ? ingredientes.join(', ') : ingredientes}.
-Tipo: ${tipoPrato}. Alternativa: ${!!alternativa}. Para ${quantidadePessoas} pessoa(s).`;
+    // PROMPT CORRETO - específico para o formato que o frontend espera
+    const prompt = `Você é um chef brasileiro. Gere uma receita em formato JSON válido, sem texto adicional, markdown ou HTML.
 
-    // URL CORRIGIDA ↓↓↓
+O JSON DEVE ter EXATAMENTE estes campos:
+{
+  "titulo": "Nome da Receita",
+  "ingredientes": "- ingrediente 1\\n- ingrediente 2",
+  "modoDePreparo": "1. Primeiro passo\\n2. Segundo passo\\n3. Terceiro passo",
+  "tempoDePreparo": "30 minutos",
+  "rendimento": "${quantidadePessoas} porções",
+  "dicasDoChef": "- Dica 1\\n- Dica 2",
+  "acompanhamento": "- Acompanhamento 1\\n- Acompanhamento 2",
+  "guarnicao": "- Guarnição 1\\n- Guarnição 2",
+  "categoria": "${tipoPrato === 'drink' ? 'drink' : 'doce'}"
+}
+
+REGRAS:
+- Use unidades brasileiras (xícaras, colheres, gramas, ml)
+- Ingredientes devem começar com hífen (-)
+- Modo de preparo deve ter passos numerados (1., 2., 3.)
+- Para ${quantidadePessoas} pessoas
+- Responda APENAS o JSON, sem mais nada
+
+Receita baseada em: ${Array.isArray(ingredientes) ? ingredientes.join(', ') : ingredientes}`;
+
     const apiRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -30,7 +51,7 @@ Tipo: ${tipoPrato}. Alternativa: ${!!alternativa}. Para ${quantidadePessoas} pes
       body: JSON.stringify({
         model: 'llama-3.1-8b-instant',
         messages: [
-          { role: 'system', content: 'Você é um chef brasileiro experiente. Responda apenas em JSON.' },
+          { role: 'system', content: 'Você é um chef brasileiro. Responda apenas com JSON válido.' },
           { role: 'user', content: prompt }
         ],
         temperature: 0.5,
@@ -46,11 +67,17 @@ Tipo: ${tipoPrato}. Alternativa: ${!!alternativa}. Para ${quantidadePessoas} pes
     }
 
     const data = await apiRes.json();
-    const content = data?.choices?.[0]?.message?.content ?? null;
+    let content = data?.choices?.[0]?.message?.content ?? null;
+
+    // Limpar possíveis marcações markdown
+    if (content) {
+      content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    }
 
     return res.status(200).json({ content });
+    
   } catch (err) {
     console.error('Erro na function gerarReceita:', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 }
