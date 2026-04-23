@@ -151,7 +151,7 @@ event.preventDefault(); // Evita voltar para saude.html
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
+    navigator.serviceWorker.register('./sw.js')  // ← só muda essa linha
       .then(reg => console.log('Service Worker registrado!', reg))
       .catch(err => console.error('Erro ao registrar SW:', err));
   });
