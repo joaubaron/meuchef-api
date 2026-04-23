@@ -1,12 +1,12 @@
 {
-  "name": "MeuChef - Receitas com IA",
+  "name": "MeuChef",
   "short_name": "MeuChef",
   "description": "Chef virtual que cria receitas personalizadas com IA",
   "start_url": "/meuchef/",
   "scope": "/meuchef/",
   "display": "standalone",
-  "theme_color": "#6a4c93",
-  "background_color": "#fefcf9",
+  "theme_color": "#f8e2d2",
+  "background_color": "#f8e2d2",
   "orientation": "portrait",
   "icons": [
     {
