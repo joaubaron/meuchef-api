@@ -1,0 +1,46 @@
+name: Deploy para GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Gerar manifestos de assets
+        run: node .github/scripts/generate-manifests.js
+
+      - name: Atualizar CACHE_VERSION no sw.js
+        run: |
+          VERSION=$(TZ="America/Sao_Paulo" date +'%d.%m.%Y-%H%M')
+          sed -i "s/const CACHE_VERSION = '.*'/const CACHE_VERSION = '${VERSION}'/" sw.js
+
+      - name: Commitar manifestos no repositório
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifestos/ sw.js
+          git diff --cached --quiet || git commit -m "chore: atualiza manifestos [skip ci]"
+          git push
+
+      - name: Deploy para GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          exclude_assets: '.github'
