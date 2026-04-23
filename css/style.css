@@ -63,42 +63,75 @@ color: #c64a0a;
 color: #6a4c93;
 }
 
-/* Tags de sugestão */
+/* Tags de sugestão - 2 linhas justificadas */
 .tags {
-display: flex;
-justify-content: center;
-flex-wrap: wrap;
-gap: 10px;
-margin-bottom: 24px;
-width: 100%;
-line-height: 1;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+  width: 100%;
+  line-height: 1;
 }
 
 .tag {
-background: #f3e5f5;
-color: #6a4c93;
-font-size: 13px;
-font-weight: 500;
-cursor: pointer;
-padding: 6px 10px;
-text-decoration: none;
-display: inline-block;
-line-height: 1.2;
-margin: 0;
-border-radius: 7px;
-user-select: none;
-border: 1px solid transparent;
+  background: #f3e5f5;
+  color: #6a4c93;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 10px;
+  text-decoration: none;
+  display: inline-block;
+  line-height: 1.2;
+  margin: 0;
+  border-radius: 7px;
+  user-select: none;
+  border: 1px solid transparent;
+  flex: 0 0 calc(25% - 7.5px); /* 4 itens por linha */
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .tag:hover {
-background: #e1bee7;
-color: #4a148c;
-transform: translateY(-2px);
-border-color: #ce93d8;
+  background: #e1bee7;
+  color: #4a148c;
+  transform: translateY(-2px);
+  border-color: #ce93d8;
 }
 
 .tag:active {
-transform: translateY(0);
+  transform: translateY(0);
+}
+
+/* Responsivo: mantém 4 por linha até telas médias */
+@media (max-width: 560px) {
+  .tag {
+    flex: 0 0 calc(25% - 7.5px);
+    font-size: 11px;
+    padding: 5px 6px;
+  }
+}
+
+/* Telas muito pequenas: 2 por linha */
+@media (max-width: 450px) {
+  .tag {
+    flex: 0 0 calc(50% - 5px);
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+  
+  .tags {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 320px) {
+  .tag {
+    font-size: 10px;
+    padding: 4px 6px;
+    flex: 0 0 calc(50% - 4px);
+  }
 }
 
 /* Adicione esta regra no final do arquivo */
