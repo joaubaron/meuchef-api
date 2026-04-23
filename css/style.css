@@ -63,43 +63,40 @@ color: #c64a0a;
 color: #6a4c93;
 }
 
-/* Tags de sugestão */
+/* Container das tags - apenas para os 8 botões de sugestão */
 .tags {
-display: flex;
-justify-content: center;
-flex-wrap: wrap;
-gap: 10px;
-margin-bottom: 24px;
-width: 100%;
-line-height: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 24px;
+  width: 100%;
 }
 
+/* Estilo para CADA TAG (APENAS os 8 botões) */
 .tag {
-background: #f3e5f5;
-color: #6a4c93;
-font-size: 13px;
-font-weight: 500;
-cursor: pointer;
-padding: 6px 10px;
-text-decoration: none;
-display: inline-block;
-line-height: 1.2;
-margin: 0;
-border-radius: 7px;
-user-select: none;
-border: 1px solid transparent;
+  background: #f3e5f5;
+  color: #6a4c93;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  text-align: center;
+  flex: 0 0 calc(25% - 7.5px); /* Força 4 itens por linha */
+  box-sizing: border-box;
+  transition: all 0.2s ease;
 }
 
 .tag:hover {
-background: #e1bee7;
-color: #4a148c;
-transform: translateY(-2px);
-border-color: #ce93d8;
+  background: #e1bee7;
+  transform: translateY(-2px);
+  border-color: #ce93d8;
 }
 
-.tag:active {
-transform: translateY(0);
-}
+/* Os elementos que NÃO são tags (Limpar, Favoritas, link saúde) 
+   continuam com comportamento normal - NÃO MEXER */
 
 /* Adicione esta regra no final do arquivo */
 .input-container {
@@ -707,17 +704,6 @@ margin-top: 12px;
 .subtitle {
 font-size: 14px;
 margin-bottom: 15px;
-}
-
-.tags {
-gap: 10px 15px;
-margin-bottom: 20px;
-}
-
-.tag {
-font-size: 12px;
-padding: 5px 12px;
-border-radius: 6px;
 }
 
 #userInput {
