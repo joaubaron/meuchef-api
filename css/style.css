@@ -77,10 +77,10 @@ line-height: 1;
 .tag {
 background: #f3e5f5;
 color: #6a4c93;
-font-size: 13px;
+font-size: 14px;
 font-weight: 500;
 cursor: pointer;
-padding: 6px 6px;
+padding: 6px 7px;
 text-decoration: none;
 display: inline-block;
 line-height: 1.2;
