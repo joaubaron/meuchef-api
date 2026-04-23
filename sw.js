@@ -1,4 +1,4 @@
-const CACHE_VERSION = '23.04.2026-1007'; // será substituído automaticamente pelo GitHub Actions
+const CACHE_VERSION = '23.04.2026-1021'; // será substituído automaticamente pelo GitHub Actions
 const CACHE_NAME = `meuchef-${CACHE_VERSION}`;
 
 const urlsToCache = [
@@ -12,6 +12,7 @@ const urlsToCache = [
   '/meuchef/imagens/chefbaron.png',
   '/meuchef/imagens/assbaron.png',
   '/meuchef/imagens/icon-192.png'
+  '/meuchef/imagens/icon-512.png' 
 ];
 
 // Instalação do Service Worker
