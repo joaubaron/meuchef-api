@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
 <meta name="description" content="MeuChef é um aplicativo para gerar receitas personalizadas com base nos ingredientes que você tem em casa.">
 <meta name="author" content="José Augusto Baron">
 <meta name="mobile-web-app-capable" content="yes">
@@ -33,7 +33,7 @@ O chef que entende sua cozinha</p>
 <span class="tag" onclick="adicionarSugestao('caipirinha refrescante de maracujá com hortelã, feita com cachaça artesanal e gelo picado — para 2 pessoas')">🍹 Drink</span>
 <span class="tag" onclick="adicionarSugestao('Torta americana de maçã com massa podre crocante e recheio caramelizado com canela — para toda a família')">🍰 Doce</span>
 <span class="tag" onclick="adicionarSugestao('medalhão de filé mignon ao molho de vinho com risoto de parmesão cremoso e toque de ervas — jantar especial a dois')">🍷 Especial</span>
-<span class="tag" onclick="adicionarSugestao('escondidinho de lentilha temperada com ervas e purê de batata-doce gratinado — sem lactose e sem origem animal')">🥛 Restrição</span>
+<span class="tag" onclick="adicionarSugestao('escondidinho de lentilha temperada com ervas e purê de batata-doce gratinado — sem lactose e sem origem animal')">🥛 Restrições</span>
 
 <p class="alimentacao" style="width: 100%; text-align: center; margin: 8px 0;">
 <a href="saude.html" style="text-decoration: none; color: inherit;">A base da alimentação saudável 🥑</a>
@@ -57,7 +57,7 @@ O chef que entende sua cozinha</p>
 🛒 Cozinha
 </button>
 </div>
-<input type="file" id="inputImportar" accept=".json" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none;">
+<input type="file" id="inputImportar" accept=".json" onchange="importarFavoritos(event)" style="display: none;">
 </div>
 
 <!-- Lista de receitas favoritas -->
@@ -114,45 +114,6 @@ placeholder="digite o que você quer comer — um prato salgado? uma sobremesa? 
 <p id="modalMessage"></p>
 </div>
 </div>
-
-<script>
-// ====================== PULL-TO-REFRESH (sem scroll normal) ======================
-let pullStartY = 0;
-let isPulling = false;
-
-document.addEventListener('touchstart', (e) => {
-    // Só ativa o pull se estiver no TOPO da página
-    if (document.querySelector('.container').scrollTop === 0) {
-        pullStartY = e.touches[0].clientY;
-        isPulling = true;
-    }
-});
-
-document.addEventListener('touchmove', (e) => {
-    if (isPulling && document.querySelector('.container').scrollTop === 0) {
-        const currentY = e.touches[0].clientY;
-        const pullDistance = currentY - pullStartY;
-        
-        // Se puxou para baixo (pullDistance > 0), NÃO deixa a tela rolar
-        if (pullDistance > 0) {
-            e.preventDefault();
-        }
-    }
-});
-
-document.addEventListener('touchend', (e) => {
-    if (isPulling && document.querySelector('.container').scrollTop === 0) {
-        const pullEndY = e.changedTouches[0].clientY;
-        const pullDistance = pullEndY - pullStartY;
-        
-        if (pullDistance > 80) {
-            window.location.reload(true);
-        }
-    }
-    isPulling = false;
-    pullStartY = 0;
-});
-</script>
 
 <script>
 document.addEventListener('deviceready', () => {
