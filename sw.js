@@ -11,7 +11,7 @@ const urlsToCache = [
   '/meuchef/imagens/topo.png',
   '/meuchef/imagens/chefbaron.png',
   '/meuchef/imagens/assbaron.png',
-  '/meuchef/imagens/icon-192.png'
+  '/meuchef/imagens/icon-192.png',
   '/meuchef/imagens/icon-512.png' 
 ];
 
