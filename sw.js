@@ -1,4 +1,4 @@
-const CACHE_VERSION = '23.04.2026-1250'; // será substituído automaticamente pelo GitHub Actions
+const CACHE_VERSION = '23.04.2026-1254'; // será substituído automaticamente pelo GitHub Actions
 const CACHE_NAME = `meuchef-${CACHE_VERSION}`;
 
 const urlsToCache = [
