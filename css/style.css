@@ -1925,3 +1925,40 @@ margin-top: 20px;
 #remyVideo {
   background: black; /* evita mostrar qualquer overlay */
 }
+
+/* FIX: Remove flash do fundo quando o vídeo está abrindo */
+#remyTela {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: black;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Garante que o conteúdo dentro da tela Remy ocupe tudo imediatamente */
+#remyTela img,
+#remyTela video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+/* Esconde qualquer conteúdo de fundo enquanto o overlay está ativo */
+#remyTela.active {
+    display: flex;
+}
+
+/* Garante que o video seja o primeiro elemento visível */
+#remyTela video {
+    background: black;
+    z-index: 1;
+}
