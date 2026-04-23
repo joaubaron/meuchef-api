@@ -12,6 +12,7 @@ const urlsToCache = [
   '/meuchef/imagens/chefbaron.png',
   '/meuchef/imagens/assbaron.png',
   '/meuchef/imagens/icon-192.png'
+  '/meuchef/imagens/icon-512.png' 
 ];
 
 // Instalação do Service Worker
