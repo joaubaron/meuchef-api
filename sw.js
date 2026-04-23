@@ -1,12 +1,17 @@
-const CACHE_NAME = 'meuchef-v1';
+const CACHE_VERSION = '01.01.2000-0000'; // será substituído automaticamente pelo GitHub Actions
+const CACHE_NAME = `meuchef-${CACHE_VERSION}`;
+
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/script.js',
-  '/manifest.json',
-  '/imagens/logo.png',
-  '/imagens/assbaron.png'
+  '/meuchef/',
+  '/meuchef/index.html',
+  '/meuchef/manifest.json',
+  '/meuchef/css/style.css',
+  '/meuchef/components/script.js',
+  '/meuchef/components/config.js',
+  '/meuchef/imagens/topo.png',
+  '/meuchef/imagens/chefbaron.png',
+  '/meuchef/imagens/assbaron.png',
+  '/meuchef/imagens/icon-192.png'
 ];
 
 // Instalação do Service Worker
@@ -14,6 +19,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -22,14 +28,13 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Cache first, network fallback
         if (response) return response;
-        
+
         return fetch(event.request).then(response => {
           // Não cache requisições da API
-          if (event.request.url.includes('/api/')) return response;
-          
-          // Cache outros recursos
+          if (event.request.url.includes('api.anthropic.com')) return response;
+
+          // Cache outros recursos estáticos
           if (response && response.status === 200) {
             const responseToCache = response.clone();
             caches.open(CACHE_NAME).then(cache => {
@@ -37,12 +42,17 @@ self.addEventListener('fetch', event => {
             });
           }
           return response;
+        }).catch(() => {
+          // Fallback offline
+          if (event.request.mode === 'navigate') {
+            return caches.match('/meuchef/index.html');
+          }
         });
       })
   );
 });
 
-// Limpeza de caches antigos
+// Limpeza de caches antigos + ativação imediata
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -53,6 +63,6 @@ self.addEventListener('activate', event => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
