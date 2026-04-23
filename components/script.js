@@ -1680,4 +1680,391 @@ function exportarFavoritosComCategorias() {
     a.download = fileName;
     document.body.appendChild(a);
     a.click();
-    document.body.
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showCustomModal(`✅ Receitas exportadas como ${fileName}`);
+}
+
+function importarFavoritos(event) {
+    const file = event.target.files[0];
+    if (!file) {
+        showCustomModal("Nenhum arquivo selecionado.");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const dados = JSON.parse(e.target.result);
+            let receitasParaImportar = null;
+            let importadasComSucesso = 0;
+            let ignoradasPorDuplicidade = 0;
+
+            if (dados && typeof dados === 'object' && Array.isArray(dados.receitas)) {
+                receitasParaImportar = dados.receitas;
+            } else if (Array.isArray(dados)) {
+                receitasParaImportar = dados;
+            }
+
+            if (receitasParaImportar) {
+                const receitasExistentes = JSON.parse(localStorage.getItem('receitasFavoritas')) || [];
+
+                function extrairIngredientes(html) {
+                    if (!html) return [];
+                    const match = html.match(/🌿 Ingredientes([\s\S]*?)(<strong>|<\/div>|$)/i);
+                    if (!match) return [];
+                    return match[1]
+                        .replace(/<[^>]*>/g, '')
+                        .split('\n')
+                        .map(i => i.trim().toLowerCase())
+                        .filter(i => i && !i.startsWith('🌿 ingredientes'));
+                }
+
+                const existentesNormalizados = receitasExistentes.map(r => ({
+                    titulo: (r.titulo || '').trim(),
+                    conteudo: (r.conteudo || '').replace(/\s+/g, ' ').trim(),
+                    ingredientes: extrairIngredientes(r.conteudo).sort().join('|')
+                }));
+
+                const novasReceitas = receitasParaImportar.map(r => {
+                    let tituloOriginal = (r.titulo || '').trim();
+                    let conteudoNormalizado = (r.conteudo || '').replace(/\s+/g, ' ').trim();
+                    let ingredientesNormalizados = extrairIngredientes(r.conteudo).sort().join('|');
+
+                    let conflitos = existentesNormalizados.filter(e => e.titulo === tituloOriginal);
+
+                    if (conflitos.length > 0) {
+                        let mesmaReceita = conflitos.some(e =>
+                            e.conteudo === conteudoNormalizado ||
+                            e.ingredientes === ingredientesNormalizados
+                        );
+
+                        if (mesmaReceita) {
+                            ignoradasPorDuplicidade++;
+                            return null;
+                        } else {
+                            let contadorVersao = 1;
+                            let novoTitulo;
+                            do {
+                                contadorVersao++;
+                                novoTitulo = `${tituloOriginal} v${contadorVersao}`;
+                            } while (
+                                existentesNormalizados.some(e => e.titulo === novoTitulo) ||
+                                receitasParaImportar.some(o => o !== r && o.titulo === novoTitulo)
+                            );
+                            r.titulo = novoTitulo;
+                            importadasComSucesso++;
+                            return r;
+                        }
+                    }
+                    importadasComSucesso++;
+                    return r;
+                }).filter(r => r !== null);
+
+                AppState.receitasFavoritas = [...receitasExistentes, ...novasReceitas];
+                localStorage.setItem('receitasFavoritas', JSON.stringify(AppState.receitasFavoritas));
+
+                migrarReceitasAntigas();
+                mostrarFavoritosComBusca();
+
+                showCustomModal(`Importação concluída: ${importadasComSucesso} adicionada(s), ${ignoradasPorDuplicidade} ignorada(s) por duplicidade.`);
+
+            } else {
+                showCustomModal("Arquivo inválido. O formato deve ser um array ou um objeto com a chave 'receitas'.");
+            }
+        } catch (err) {
+            console.error("Erro ao ler arquivo: ", err);
+            showCustomModal("Erro ao importar. Verifique o arquivo.");
+        }
+        event.target.value = '';
+    };
+    reader.readAsText(file);
+}
+
+// === SHARE FUNCTION ===
+function compartilharReceita(titulo, conteudoHTML) {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = conteudoHTML;
+    const recipeOutput = tempDiv.querySelector('.recipe-output');
+    let conteudoParaCompartilhar = recipeOutput ? recipeOutput.innerHTML : conteudoHTML;
+    conteudoParaCompartilhar = conteudoParaCompartilhar.replace(/<strong>[^<]*<\/strong>(\s*<br>\s*)*/i, '').replace(/<div class="botoes-receita">[\s\S]*?<\/div>/gi, '').replace(/<div class="bom-apetite">[\s\S]*?<\/div>/gi, '');
+    const conteudoLimpo = conteudoParaCompartilhar.replace(/<br\s*\/?>/gi, '\n').replace(/<strong>(.*?)<\/strong>/g, '$1').replace(/<[^>]+>/g, '').replace(/\n{3,}/g, '\n\n').replace(/^\s+|\s+$/g, '').replace(/(\n)\s+/g, '$1');
+    let textoFormatado = `${titulo}\n\n${conteudoLimpo.trim()}`;
+    textoFormatado = textoFormatado.replace(/(🌿 Ingredientes)/, '\n$1\n').replace(/(🥘 Modo de Preparo)/, '\n$1\n').replace(/(⏳ Tempo de Preparo)/, '\n$1\n').replace(/(🧺 Rendimento)/, '\n$1\n').replace(/(⭐ Dicas do Chef)/, '\n$1\n').replace(/(🍹 Acompanhamento)/, '\n$1\n').replace(/(🥗 Guarnição)/, '\n$1\n');
+    textoFormatado = textoFormatado.replace(/(🥘 Modo de Preparo\n)([\s\S]*?)(?=\n\n⏳|\n\n🧺|\n\n⭐|\n\n🍹|\n\n🥗|$)/, (match, tituloSecao, conteudoSecao) => { const passos = conteudoSecao.split('\n').filter(passo => passo.trim()).map((passo, index) => { const passoLimpo = passo.replace(/^\s*\d+\.\s*/, '').trim(); return passoLimpo ? `${index + 1}. ${passoLimpo}` : ''; }).filter(passo => passo !== '').join('\n'); return `${tituloSecao}${passos}\n`; });
+    textoFormatado = textoFormatado.replace(/\n{3,}/g, '\n\n');
+    const shareText = `${textoFormatado}\n\nQualquer um pode cozinhar!\nBom apetite!`;
+    const scrollPosition = window.scrollY || window.pageYOffset;
+    const restaurarScroll = () => { setTimeout(() => window.scrollTo(0, scrollPosition), 100); };
+    if (navigator.share) {
+        navigator.share({ title: titulo, text: shareText }).then(() => restaurarScroll()).catch(() => restaurarScroll());
+    } else {
+        navigator.clipboard.writeText(shareText).then(() => { showCustomModal('📋 Receita copiada!'); restaurarScroll(); }).catch(() => { showCustomModal('❌ Não foi possível compartilhar'); restaurarScroll(); });
+    }
+}
+
+// === MAIN GENERATION FUNCTIONS ===
+async function gerarReceita(event) {
+    const entrada = document.getElementById('userInput').value.trim();
+    if (!entrada) {
+        const mensagemAlerta = document.getElementById('mensagemAlerta');
+        if (mensagemAlerta) {
+            mensagemAlerta.classList.remove('alerta-oculto');
+            mensagemAlerta.classList.add('alerta-visivel');
+            mensagemAlerta.style.animation = 'none';
+            void mensagemAlerta.offsetWidth;
+            mensagemAlerta.style.animation = 'fadeInOut 5s forwards';
+            setTimeout(() => {
+                mensagemAlerta.classList.remove('alerta-visivel');
+                mensagemAlerta.classList.add('alerta-oculto');
+                mensagemAlerta.style.animation = 'none';
+            }, 5000);
+        }
+        return;
+    }
+
+    // Detecção melhorada de bebidas
+    const palavrasChaveBebida = ['bebida', 'suco', 'chá', 'coquetel', 'drink', 'caipirinha', 'batida', 'vitamina', 
+                               'cachaça', 'vodka', 'gin', 'rum', 'tequila', 'cerveja', 'vinho', 'licor', 'refresco'];
+    
+    const entradaMinuscula = entrada.toLowerCase();
+    const isBebida = palavrasChaveBebida.some(palavra => entradaMinuscula.includes(palavra));
+    
+    const tipoPratoInferido = isBebida ? "drink" : sugerirCategoria("", "", entrada);
+
+    AppState.ultimaEntrada = entrada;
+    const botao = event.target;
+    const textoOriginalBotao = botao.innerHTML;
+    await handleRecipeGeneration(entrada, botao, textoOriginalBotao, tipoPratoInferido, "primeira");
+}
+ 
+async function gerarOutraReceita() {
+    const entradaAtual = document.getElementById('userInput').value.trim();
+    let modoGeracao = "variacao";
+
+    if (entradaAtual && AppState.ultimaEntrada && entradaAtual !== AppState.ultimaEntrada) {
+        modoGeracao = "nova";
+    } else if (!entradaAtual && AppState.ultimaEntrada) {
+        modoGeracao = "variacao";
+    } else if (entradaAtual && !AppState.ultimaEntrada) {
+        modoGeracao = "primeira";
+    }
+
+    if (AppState.isGenerating) return;
+    AppState.isGenerating = true;
+
+    if (!AppState.ultimaEntrada && (modoGeracao === "variacao")) {
+        console.warn('Tentativa de gerar variação sem entrada anterior ou nova entrada.');
+        AppState.isGenerating = false;
+        showCustomModal('⚠️ Primeiro crie uma receita para depois gerar variações ou digite novos ingredientes.');
+        return;
+    }
+
+    const resultadoDiv = document.getElementById('resultado');
+    const opcoesDiv = document.getElementById('opcoes');
+    const btnGerarNova = document.getElementById('btnGerarNova');
+    const botoesDiv = document.querySelector('.botoes-empilhados');
+    const imagemInicial = document.getElementById('imagemInicial');
+
+    if (!resultadoDiv || !opcoesDiv || !btnGerarNova || !botoesDiv || !imagemInicial) {
+        console.error("Erro: Um ou mais elementos HTML necessários não foram encontrados para 'gerarOutraReceita'.");
+        AppState.isGenerating = false;
+        return;
+    }
+
+    const textoOriginalBotao = btnGerarNova.innerHTML;
+    btnGerarNova.classList.add('loading');
+    btnGerarNova.innerHTML = '<span class="spin-animation">🥘</span> Buscando sua receita';
+    btnGerarNova.disabled = true;
+
+    try {
+        console.log('Iniciando geração de receita... Modo:', modoGeracao);
+
+        let tipoPratoParaGeracao;
+        let isAlternativa = false;
+        let promptParaIA = entradaAtual;
+
+        if (modoGeracao === "variacao") {
+            tipoPratoParaGeracao = AppState.ultimoTipoPratoGerado;
+            isAlternativa = true;
+            promptParaIA = AppState.ultimaEntrada || AppState.ultimaReceitaGerada;
+        } else if (modoGeracao === "nova" || modoGeracao === "primeira") {
+            tipoPratoParaGeracao = sugerirCategoria("", "", entradaAtual);
+            isAlternativa = false;
+            AppState.ultimaEntrada = entradaAtual;
+        }
+
+        const receita = await gerarReceitaComIA(promptParaIA, isAlternativa, tipoPratoParaGeracao);
+
+        console.log('Receita gerada com sucesso!');
+
+        AppState.ultimaReceitaGerada = receita;
+        AppState.ultimoTipoPratoGerado = sugerirCategoria(extrairTitulo(receita), receita, promptParaIA);
+
+        resultadoDiv.innerHTML = RecipeFormatter.formatResponse(receita);
+
+        imagemInicial.style.display = 'none';
+        botoesDiv.style.display = 'none';
+        opcoesDiv.classList.remove('oculto');
+        opcoesDiv.classList.add('show');
+
+        btnGerarNova.innerHTML = '🥣 Tente algo diferente';
+        btnGerarNova.disabled = false;
+        btnGerarNova.classList.remove('loading');
+
+    } catch (error) {
+        handleGenerationError(error, resultadoDiv, imagemInicial, botoesDiv, opcoesDiv, btnGerarNova, textoOriginalBotao);
+    } finally {
+        AppState.isGenerating = false;
+    }
+}
+
+async function handleRecipeGeneration(entrada, botao, textoOriginal, tipoPratoInicial, modo = "normal") {
+    if (AppState.isGenerating) return;
+    AppState.isGenerating = true;
+
+    const resultadoDiv = document.getElementById('resultado');
+    const opcoesDiv = document.getElementById('opcoes');
+    const botoesDiv = document.querySelector('.botoes-empilhados');
+    const imagemInicial = document.getElementById('imagemInicial');
+    const btnGerarNova = document.getElementById('btnGerarNova');
+
+    if (!resultadoDiv || !opcoesDiv || !botoesDiv || !imagemInicial || !botao || !btnGerarNova) {
+        console.error("Erro: Um ou mais elementos HTML necessários não foram encontrados.");
+        AppState.isGenerating = false;
+        return;
+    }
+
+    // Estado do botão durante geração
+    botao.classList.add('loading');
+    botao.innerHTML = '<span class="spin-animation">🥘</span> Criando sua receita';
+    botao.disabled = true;
+
+    // Oculta opções enquanto gera
+    opcoesDiv.classList.remove('show');
+    opcoesDiv.classList.add('oculto');
+
+    try {
+        console.log('Iniciando geração de receita... Modo:', modo);
+
+        let tipoPratoParaGeracao;
+        let isAlternativa = false;
+
+        if (modo === "variacao") {
+            tipoPratoParaGeracao = AppState.ultimoTipoPratoGerado;
+            isAlternativa = true;
+        } else {
+            tipoPratoParaGeracao = tipoPratoInicial;
+            isAlternativa = false;
+            AppState.ultimaEntrada = entrada;
+        }
+
+        // Geração da receita via IA
+        let receita = await gerarReceitaComIA(entrada, isAlternativa, tipoPratoParaGeracao);
+
+        // --- DEBUG DA API ---
+        console.log('Resposta da API recebida:');
+        debugAPIResponse(receita);
+        // --------------------
+
+        AppState.ultimaReceitaGerada = receita;
+        AppState.ultimoTipoPratoGerado = sugerirCategoria(extrairTitulo(receita), receita, entrada);
+
+        console.log('Receita gerada com sucesso!');
+
+        // Atualiza DOM com a receita
+        resultadoDiv.innerHTML = RecipeFormatter.formatResponse(receita);
+        resultadoDiv.classList.remove('empty');
+
+        imagemInicial.style.display = 'none';
+        botoesDiv.style.display = 'none';
+
+        // Configura botão de gerar nova receita
+        btnGerarNova.innerHTML = '🥣 Tente algo diferente';
+        btnGerarNova.onclick = gerarOutraReceita;
+
+        opcoesDiv.classList.remove('oculto');
+        opcoesDiv.classList.add('show');
+
+    } catch (error) {
+        handleGenerationError(error, resultadoDiv, imagemInicial, botoesDiv, opcoesDiv, botao, textoOriginal);
+    } finally {
+        botao.classList.remove('loading');
+        if (botao.id !== 'btnGerarNova') {
+            botao.innerHTML = textoOriginal;
+        }
+        botao.disabled = false;
+        AppState.isGenerating = false;
+    }
+}
+
+// === UI HELPER FUNCTIONS ===
+function refreshApp() {
+    const appContent = document.getElementById('app-content');
+    appContent.style.opacity = '0.5';
+    setTimeout(() => {
+        resetApp();
+        appContent.style.opacity = '1';
+    }, 500);
+}
+
+function adicionarSugestao(sugestao) {
+    document.getElementById('userInput').value = sugestao;
+}
+
+// === INITIALIZATION ===
+document.addEventListener('DOMContentLoaded', function() {
+    AppState.receitasFavoritas = JSON.parse(localStorage.getItem('receitasFavoritas')) || [];
+    migrarReceitasAntigas();
+
+    window.exportarFavoritos = exportarFavoritosComCategorias;
+    console.log('Sistema de busca e categorias inicializado!');
+
+    const appContent = document.getElementById('app-content');
+    if (appContent) appContent.style.display = 'block';
+
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.addEventListener('input', function() {
+            const valorAtual = this.value.trim();
+            const btnGerarNova = document.getElementById('btnGerarNova');
+
+            if (!btnGerarNova) return;
+
+            if (!AppState.ultimaEntrada && !valorAtual) {
+                btnGerarNova.innerHTML = '🥘 Crie uma receita pra mim';
+                btnGerarNova.onclick = function() {
+                    gerarReceita({
+                        target: btnGerarNova
+                    });
+                };
+            } else if (AppState.ultimaEntrada && valorAtual && valorAtual !== AppState.ultimaEntrada) {
+                btnGerarNova.innerHTML = '🥣 Tente algo diferente';
+                btnGerarNova.onclick = gerarOutraReceita;
+            } else if (AppState.ultimaEntrada) {
+                btnGerarNova.innerHTML = '🥣 Tente algo diferente';
+                btnGerarNova.onclick = gerarOutraReceita;
+            } else if (valorAtual && !AppState.ultimaEntrada) {
+                btnGerarNova.innerHTML = '🥘 Crie uma receita pra mim';
+                btnGerarNova.onclick = function() {
+                    gerarReceita({
+                        target: btnGerarNova
+                    });
+                };
+            }
+        });
+
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const botaoPrincipal = document.querySelector('.botoes-empilhados button');
+                if (botaoPrincipal) {
+                    gerarReceita({
+                        target: botaoPrincipal
+                    });
+                }
+            }
+        });
+    }
+});
