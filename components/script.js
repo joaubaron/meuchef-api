@@ -793,42 +793,61 @@ function abrirRemy(src) {
   const img = document.getElementById("remyImagem");
   const video = document.getElementById("remyVideo");
 
-  // Esconde os dois
+  // Esconde os dois elementos
   img.style.display = "none";
   video.style.display = "none";
-
+  
+  // Adiciona classe active imediatamente para garantir que o fundo preto apareça
+  tela.style.display = "flex";
+  
+  // Salva o scroll atual para restaurar depois se necessário
+  const scrollY = window.scrollY;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${scrollY}px`;
+  document.body.style.width = '100%';
+  
   if (src.endsWith(".mp4") || src.endsWith(".mpg")) {
     const source = video.querySelector("source");
     source.src = src;
     video.load();
 
-    video.loop = true; // ativa loop
-    video.style.display = "none"; // esconde até estar pronto
-
     // Quando o vídeo puder tocar, mostramos e começamos
     video.oncanplay = () => {
       video.style.display = "block";
+      img.style.display = "none";
       video.play().catch(() => {
         console.log("Autoplay com áudio bloqueado.");
       });
     };
-
+    
+    // Mostra um fundo preto imediatamente enquanto carrega
+    tela.style.background = "black";
+    
   } else {
     img.src = src;
     img.style.display = "block";
+    img.onload = () => {
+      img.style.display = "block";
+    };
   }
 
-  tela.style.display = "flex";
-
   // Clique em qualquer lugar fecha
-  tela.onclick = () => fecharRemy();
-  img.onclick = () => fecharRemy();
-  video.onclick = () => fecharRemy();
+  tela.onclick = () => fecharRemy(scrollY);
+  img.onclick = () => fecharRemy(scrollY);
+  video.onclick = () => fecharRemy(scrollY);
 }
 
-function fecharRemy() {
+function fecharRemy(savedScrollY) {
   const tela = document.getElementById("remyTela");
   const video = document.getElementById("remyVideo");
+  
+  // Restaura o scroll da página
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.width = '';
+  if (savedScrollY !== undefined) {
+    window.scrollTo(0, savedScrollY);
+  }
 
   // Esconde a tela
   tela.style.display = "none";
@@ -840,9 +859,8 @@ function fecharRemy() {
     // Remove o src para garantir que o áudio não continue
     const source = video.querySelector("source");
     source.src = "";
-    video.load(); // força o navegador a reiniciar o vídeo sem áudio
-
-    video.style.display = "none"; // esconde o vídeo
+    video.load();
+    video.style.display = "none";
   }
 
   const img = document.getElementById("remyImagem");
