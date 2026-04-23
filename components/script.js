@@ -2021,27 +2021,8 @@ document.addEventListener('DOMContentLoaded', function() {
     window.exportarFavoritos = exportarFavoritosComCategorias;
     console.log('Sistema de busca e categorias inicializado!');
 
-    const splashScreen = document.getElementById('splash-screen');
     const appContent = document.getElementById('app-content');
-
-    if (splashScreen && appContent) {
-        if (sessionStorage.getItem('splash_visto')) {
-            splashScreen.style.display = 'none';
-            appContent.style.display = 'block';
-            sessionStorage.removeItem('splash_visto');
-        } else {
-            setTimeout(function() {
-                splashScreen.classList.add('fade-out');
-                splashScreen.addEventListener('transitionend', function() {
-                    splashScreen.style.display = 'none';
-                    appContent.style.display = 'block';
-                    sessionStorage.setItem('splash_visto', 'true');
-                }, {
-                    once: true
-                });
-            }, 3000);
-        }
-    }
+    if (appContent) appContent.style.display = 'block';
 
     const userInput = document.getElementById('userInput');
     if (userInput) {
