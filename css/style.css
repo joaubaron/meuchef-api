@@ -77,26 +77,17 @@ color: #6a4c93;
 .tag {
   background: #f3e5f5;
   color: #6a4c93;
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 500;
   cursor: pointer;
-  padding: 6px 10px;
+  padding: 5px 8px;
   border-radius: 7px;
   border: 1px solid transparent;
   text-align: center;
-  flex: 0 0 calc(25% - 7.5px); /* Força 4 itens por linha */
+  flex: 0 0 calc(25% - 7.5px);
   box-sizing: border-box;
   transition: all 0.2s ease;
 }
-
-.tag:hover {
-  background: #e1bee7;
-  transform: translateY(-2px);
-  border-color: #ce93d8;
-}
-
-/* Os elementos que NÃO são tags (Limpar, Favoritas, link saúde) 
-   continuam com comportamento normal - NÃO MEXER */
 
 /* Adicione esta regra no final do arquivo */
 .input-container {
