@@ -80,7 +80,7 @@ color: #6a4c93;
 font-size: 13px;
 font-weight: 500;
 cursor: pointer;
-padding: 6px 10px;
+padding: 6px 6px;
 text-decoration: none;
 display: inline-block;
 line-height: 1.2;
@@ -88,13 +88,6 @@ margin: 0;
 border-radius: 7px;
 user-select: none;
 border: 1px solid transparent;
-}
-
-.tag:hover {
-background: #e1bee7;
-color: #4a148c;
-transform: translateY(-2px);
-border-color: #ce93d8;
 }
 
 .tag:active {
@@ -707,17 +700,6 @@ margin-top: 12px;
 .subtitle {
 font-size: 14px;
 margin-bottom: 15px;
-}
-
-.tags {
-gap: 10px 15px;
-margin-bottom: 20px;
-}
-
-.tag {
-font-size: 12px;
-padding: 5px 12px;
-border-radius: 6px;
 }
 
 #userInput {
