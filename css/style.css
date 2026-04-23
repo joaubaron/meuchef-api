@@ -21,10 +21,6 @@ line-height: 1.6;
 }
 
 /* Conteúdo principal */
-#app-content {
-display: none;
-}
-
 .container {
 width: auto;
 max-width: none;
