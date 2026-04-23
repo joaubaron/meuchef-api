@@ -2,52 +2,36 @@
   "name": "MeuChef - Receitas com IA",
   "short_name": "MeuChef",
   "description": "Chef virtual que cria receitas personalizadas com IA",
-  "start_url": "/",
+  "start_url": "/meuchef/",
+  "scope": "/meuchef/",
   "display": "standalone",
   "theme_color": "#6a4c93",
   "background_color": "#fefcf9",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "imagens/icon-72.png",
-      "sizes": "72x72",
+      "src": "imagens/icon-192.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "imagens/icon-96.png",
-      "sizes": "96x96",
-      "type": "image/png"
-    },
-    {
-      "src": "imagens/icon-128.png",
-      "sizes": "128x128",
-      "type": "image/png"
-    },
-    {
-      "src": "imagens/icon-144.png",
-      "sizes": "144x144",
-      "type": "image/png"
-    },
-    {
-      "src": "imagens/icon-152.png",
-      "sizes": "152x152",
-      "type": "image/png"
+      "purpose": "any"
     },
     {
       "src": "imagens/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "imagens/icon-384.png",
-      "sizes": "384x384",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "imagens/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "imagens/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
