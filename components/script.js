@@ -793,61 +793,42 @@ function abrirRemy(src) {
   const img = document.getElementById("remyImagem");
   const video = document.getElementById("remyVideo");
 
-  // Esconde os dois elementos
+  // Esconde os dois
   img.style.display = "none";
   video.style.display = "none";
-  
-  // Adiciona classe active imediatamente para garantir que o fundo preto apareça
-  tela.style.display = "flex";
-  
-  // Salva o scroll atual para restaurar depois se necessário
-  const scrollY = window.scrollY;
-  document.body.style.position = 'fixed';
-  document.body.style.top = `-${scrollY}px`;
-  document.body.style.width = '100%';
-  
+
   if (src.endsWith(".mp4") || src.endsWith(".mpg")) {
     const source = video.querySelector("source");
     source.src = src;
     video.load();
 
+    video.loop = true; // ativa loop
+    video.style.display = "none"; // esconde até estar pronto
+
     // Quando o vídeo puder tocar, mostramos e começamos
     video.oncanplay = () => {
       video.style.display = "block";
-      img.style.display = "none";
       video.play().catch(() => {
         console.log("Autoplay com áudio bloqueado.");
       });
     };
-    
-    // Mostra um fundo preto imediatamente enquanto carrega
-    tela.style.background = "black";
-    
+
   } else {
     img.src = src;
     img.style.display = "block";
-    img.onload = () => {
-      img.style.display = "block";
-    };
   }
+
+  tela.style.display = "flex";
 
   // Clique em qualquer lugar fecha
-  tela.onclick = () => fecharRemy(scrollY);
-  img.onclick = () => fecharRemy(scrollY);
-  video.onclick = () => fecharRemy(scrollY);
+  tela.onclick = () => fecharRemy();
+  img.onclick = () => fecharRemy();
+  video.onclick = () => fecharRemy();
 }
 
-function fecharRemy(savedScrollY) {
+function fecharRemy() {
   const tela = document.getElementById("remyTela");
   const video = document.getElementById("remyVideo");
-  
-  // Restaura o scroll da página
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.width = '';
-  if (savedScrollY !== undefined) {
-    window.scrollTo(0, savedScrollY);
-  }
 
   // Esconde a tela
   tela.style.display = "none";
@@ -859,8 +840,9 @@ function fecharRemy(savedScrollY) {
     // Remove o src para garantir que o áudio não continue
     const source = video.querySelector("source");
     source.src = "";
-    video.load();
-    video.style.display = "none";
+    video.load(); // força o navegador a reiniciar o vídeo sem áudio
+
+    video.style.display = "none"; // esconde o vídeo
   }
 
   const img = document.getElementById("remyImagem");
@@ -2038,6 +2020,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.exportarFavoritos = exportarFavoritosComCategorias;
     console.log('Sistema de busca e categorias inicializado!');
+
+    // FIX: Registrar listener do input de importação via JS (mais confiável em PWA/iOS)
+    const inputImportar = document.getElementById('inputImportar');
+    if (inputImportar) {
+        // Remove onchange inline para evitar dupla execução
+        inputImportar.removeAttribute('onchange');
+        inputImportar.addEventListener('change', function(event) {
+            importarFavoritos(event);
+        });
+    }
 
     const appContent = document.getElementById('app-content');
     if (appContent) appContent.style.display = 'block';
