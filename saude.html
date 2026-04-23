@@ -1,0 +1,541 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Um guia completo e visual sobre como ter uma alimentação saudável e equilibrada, com dicas sobre vegetais, carboidratos, proteínas e cores dos alimentos.">
+<meta name="author" content="José Augusto Baron">
+<title>Sua alimentação saudável</title>
+
+<style>
+/* Reset */
+html, body {
+margin: 0;
+padding: 0;
+}
+
+body {
+background: #fefcf9;
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+color: #5a4037;
+line-height: 1.6;
+text-align: left;
+}
+
+/* Container */
+.container {
+max-width: 800px;
+margin: 0 auto;
+padding: 0 16px;
+}
+
+/* Cabeçalho */
+.header {
+text-align: left;
+margin-bottom: 30px;
+}
+
+.logotopo {
+display: block;
+margin: 2px 0 15px 0;
+max-width: 200px;
+height: auto;
+filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
+}
+
+.subtitle {
+text-align: left;
+color: #8d6e63;
+font-family: 'Lato', sans-serif;
+font-size: 16px;
+margin-bottom: 25px;
+font-weight: 300;
+}
+
+/* Tags de navegação */
+.tags {
+display: flex;
+justify-content: flex-start;
+flex-wrap: wrap;
+gap: 10px;
+margin-bottom: 24px;
+width: 100%;
+}
+
+.tag {
+background: #f3e5f5;
+color: #6a4c93;
+font-size: 13px;
+font-weight: 500;
+cursor: pointer;
+padding: 6px 10px;
+text-decoration: none;
+transition: all 0.2s ease;
+display: inline-block;
+line-height: 1.2;
+border-radius: 7px;
+user-select: none;
+border: 1px solid transparent;
+}
+.tag:hover {
+background: #e1bee7;
+color: #4a148c;
+transform: translateY(-2px);
+border-color: #ce93d8;
+}
+
+/* Caixa de conteúdo base */
+.recipe-box {
+background: rgba(255, 255, 255, 0.95);
+border-radius: 12px;
+padding: 24px;
+margin: 24px 0;
+border: 2px solid #f8bbd9;
+box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+font-size: 14px;
+line-height: 1.5;
+color: #5a4037;
+text-align: left;
+transition: all 0.3s ease;
+}
+.recipe-box:hover {
+transform: translateY(-3px);
+box-shadow: 0 8px 22px rgba(0,0,0,0.12);
+}
+
+/* Títulos internos */
+.recipe-box strong {
+font-size: 17px;
+font-weight: 600;
+display: block;
+margin: 16px 0 10px;
+color: #6a4c93;
+}
+.recipe-box strong:first-child {
+font-size: 19px;
+margin-top: 0;
+}
+
+/* Diagrama do prato */
+.prato-container {
+text-align: center;
+margin: 25px 0;
+background: linear-gradient(145deg, #fff5f8, #f0f4ff);
+border-radius: 20px;
+padding: 25px;
+box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+.prato-visual {
+width: 280px;
+height: 280px;
+border-radius: 50%;
+border: 6px solid #4CAF50;
+margin: 0 auto 20px;
+position: relative;
+overflow: hidden;
+box-shadow: 0 12px 24px rgba(0,0,0,0.18);
+}
+.fatia {
+position: absolute;
+font-weight: 600;
+color: white;
+display: flex;
+align-items: center;
+justify-content: center;
+text-align: center;
+font-size: 13px;
+text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+}
+.fatia-vegetais {
+background: linear-gradient(135deg, #66BB6A, #2E7D32);
+width: 50%;
+height: 100%;
+left: 0;
+top: 0;
+border-radius: 140px 0 0 140px;
+}
+.fatia-carboidratos {
+background: linear-gradient(135deg, #FFA726, #F57C00);
+width: 50%;
+height: 50%;
+right: 0;
+top: 0;
+border-radius: 0 140px 0 0;
+}
+.fatia-proteinas {
+background: linear-gradient(135deg, #EC407A, #C2185B);
+width: 50%;
+height: 50%;
+right: 0;
+bottom: 0;
+border-radius: 0 0 140px 0;
+}
+.formula-texto {
+color: #5a4037;
+font-size: 14px;
+font-weight: 500;
+margin-top: 15px;
+text-align: left;
+}
+
+/* Seções temáticas */
+.secao-vegetais {background: linear-gradient(135deg, #F0F8F0, #E0F0E0);}
+.secao-carboidratos {background: linear-gradient(135deg, #FFF8E8, #FFEEDD);}
+.secao-proteinas {background: linear-gradient(135deg, #FFF0F5, #FEE8EE);}
+.secao-cores {background: linear-gradient(135deg, #F8F0F8, #F0E0F0);}
+.secao-refeicoes {background: linear-gradient(135deg, #E8F5FD, #DDEEFF);}
+.dicas-finais {background: linear-gradient(135deg, #FFFDE7, #FFF9C4);}
+
+/* Lista de dicas */
+.dicas-lista {
+list-style: none;
+padding: 0;
+}
+.dicas-lista li {
+padding: 8px 0 8px 28px;
+position: relative;
+font-size: 15px;
+color: #2d3748;
+}
+.dicas-lista li::before {
+content: "✔";
+color: #6a4c93;
+font-size: 13px;
+position: absolute;
+left: 0;
+top: 8px;
+}
+
+/* Grid de cores */
+.cores-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+gap: 18px;
+margin-top: 20px;
+}
+.cor-card {
+padding: 20px;
+border-radius: 15px;
+text-align: left;
+box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+transition: transform 0.3s ease;
+border: 2px solid transparent;
+}
+.cor-card:hover {
+transform: translateY(-8px);
+}
+.cor-verde {background: linear-gradient(135deg, #C8E6C9, #A5D6A7);border-color: #8BC34A;}
+.cor-amarela {background: linear-gradient(135deg, #FFECB3, #FFE082);border-color: #FFB74D;}
+.cor-vermelha {background: linear-gradient(135deg, #FFCDD2, #EF9A9A);border-color: #F06292;}
+.cor-roxa {background: linear-gradient(135deg, #E1BEE7, #CE93D8);border-color: #BA68C8;}
+.cor-card h4 {
+font-weight: 600;
+color: #2d3748;
+margin-bottom: 10px;
+font-size: 16px;
+}
+.cor-card p {
+font-size: 13px;
+color: #4a5568;
+line-height: 1.5;
+margin-bottom: 6px;
+}
+
+/* Grid de refeições */
+.refeicoes-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+gap: 18px;
+margin-top: 20px;
+}
+.refeicao-card {
+padding: 22px;
+border-radius: 15px;
+background: rgba(255, 255, 255, 0.9);
+box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+transition: transform 0.3s ease;
+border: 2px solid #f8bbd9;
+text-align: left;
+}
+.refeicao-card:hover {
+transform: translateY(-6px);
+box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+}
+.refeicao-card h3 {
+color: #6a4c93;
+font-size: 18px;
+margin-bottom: 15px;
+font-weight: 600;
+}
+.refeicao-conteudo {
+font-size: 14px;
+color: #2d3748;
+line-height: 1.6;
+}
+
+/* Destaques */
+.destaque {
+background: linear-gradient(120deg, rgba(255,193,7,0.2) 0%, rgba(255,152,0,0.15) 50%, rgba(255,193,7,0.2) 100%);
+padding: 2px 6px;
+border-radius: 5px;
+font-weight: 500;
+}
+
+/* Rodapé/assinatura */
+.bom-apetite {
+text-align: center;
+font-style: italic;
+color: #6a4c93;
+margin-top: 24px;
+padding-top: 20px;
+border-top: 1px dashed rgba(106, 76, 147, 0.3);
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+font-size: 11.5px !important;
+font-weight: 500;
+}
+
+/* Link voltar */
+a[href*="index.html#app-content"] {
+font-size: 14px;
+color: #c64a0a;
+font-weight: 500;
+text-decoration: none;
+display: block;
+margin: 30px 0 30px -5px;
+transition: color 0.2s ease, transform 0.2s ease;
+}
+
+a[href*="index.html#app-content"]:hover {
+color: #2e0854;
+transform: translateX(-3px);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+.container {padding: 20px 12px;}
+.recipe-box {padding: 20px;}
+.prato-visual {width: 240px; height: 240px;}
+}
+@media (max-width: 480px) {
+.prato-visual {width: 200px; height: 200px;}
+.refeicoes-grid, .cores-grid {grid-template-columns: 1fr;}
+}
+
+#remyTela {
+display: none;
+position: fixed;
+z-index: 9999;
+top: 0;
+left: 0;
+width: 100vw;
+height: 100vh;
+background: black;
+justify-content: center;
+align-items: center;
+}
+
+#remyTela img {
+width: 100%;
+height: 100%;
+object-fit: cover; /* cobre a tela toda */
+cursor: pointer;   /* mostra que dá pra fechar */
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<div class="recipe-box">
+<img src="imagens/saude.png" alt="Guia de Saúde" style="display:block;max-width:335px;height:auto;margin:0 auto 15px;">
+<a href="index.html#app-content">← voltar pra cozinha 🛒</a>
+<div <p class="formula-texto"><strong>A fórmula secreta:</strong> Divida seu prato em 3 partes.<span class="destaque">Metade sempre para frutas, verduras e legumes</span> — uma parte para carboidratos que fornecem energia, e outra para proteínas que constroem o corpo.</p>
+</div>
+</div>
+
+<!-- Seções -->
+<div class="recipe-box secao-vegetais">
+<strong>🌱 Frutas, Verduras e Legumes: Aliados da Vitalidade (50%)</strong>
+<p>Estes alimentos são <span class="destaque">ricos em fibras, vitaminas e minerais</span> que fortalecem sua imunidade...</p>
+<strong>💡 Dicas para aproveitar melhor:</strong>
+<ul class="dicas-lista">
+<li>Varie as cores para garantir nutrientes diversos</li>
+<li>Prefira sempre alimentos da estação</li>
+<li>Experimente diferentes preparos</li>
+<li>Inclua folhas verde-escuras</li>
+<li>Frutas frescas ou secas são ideais para lanches</li>
+</ul>
+</div>
+
+<div class="recipe-box secao-carboidratos">
+<strong>🌾 Carboidratos: O Combustível do Seu Dia (25%)</strong>
+
+<p>Alimentos como <span class="destaque">arroz, massas, pães, batata, mandioca e milho</span> são responsáveis por fornecer toda a energia que seu corpo precisa para funcionar perfeitamente.</p>
+
+<strong>💡 Escolhas inteligentes para mais energia:</strong>
+<ul class="dicas-lista">
+<li>Prefira versões integrais sempre que possível — mais fibras e nutrientes</li>
+<li>Varie entre diferentes fontes: quinoa, batata doce, aveia, tapioca</li>
+<li>Use uma xícara como medida para controlar as porções</li>
+<li>Combine com legumes para potencializar os benefícios</li>
+<li>Granola e pães integrais são ótimos no café da manhã</li>
+</ul>
+</div>
+
+<div class="recipe-box secao-proteinas">
+<strong>🥩 Proteínas: Os Construtores do Seu Corpo (25%)</strong>
+
+<p>De origem animal ou vegetal, as proteínas são <span class="destaque">fundamentais para músculos, ossos, unhas, hormônios e enzimas</span> — verdadeiros arquitetos da sua saúde.</p>
+
+<strong>💡 Variedade que constrói saúde:</strong>
+<ul class="dicas-lista">
+<li><strong>Animais:</strong> carnes magras, peixes, ovos, leite, iogurte, queijos</li>
+<li><strong>Vegetais:</strong> feijão, lentilha, soja, grão-de-bico, cogumelos</li>
+<li>Alterne as fontes durante a semana para completar nutrientes</li>
+<li>Experimente preparos diferentes: grelhado, assado, cozido, mexido</li>
+<li>Omeletes são perfeitas para jantares mais leves</li>
+</ul>
+</div>
+
+<div class="recipe-box secao-cores">
+<strong>🎨 O Segredo das Cores Alimentares</strong>
+<p>Cada cor representa nutrientes específicos! <span class="destaque">Quanto mais colorido seu prato, mais completa sua nutrição.</span> Alguns nutrientes são corantes naturais — por isso a cor indica o que há de especial naquele alimento.</p>
+
+<div class="cores-grid">
+<div class="cor-card cor-verde">
+<h4>💚 Verde</h4>
+<p><strong>Rico em:</strong> Vitaminas A, C, E, ferro, cálcio, fósforo, fibras</p>
+<p><strong>Poderes:</strong> Intestino saudável, combate envelhecimento, diminui cansaço mental, acelera metabolismo</p>
+<p><em>Encontre em:</em> Folhas escuras, brócolis, pimentão, kiwi, abacate</p>
+</div>
+
+<div class="cor-card cor-amarela">
+<h4>💛 Amarelo/Laranja</h4>
+<p><strong>Rico em:</strong> Vitaminas A e C, betacaroteno</p>
+<p><strong>Poderes:</strong> Fortalece imunidade, protege visão, previne catarata, mantém bronzeado natural</p>
+<p><em>Encontre em:</em> Cenoura, pimentão amarelo, laranja, tangerina, manga, abóbora, pêssego</p>
+</div>
+
+<div class="cor-card cor-vermelha">
+<h4>❤️ Vermelho</h4>
+<p><strong>Rico em:</strong> Licopeno, vitaminas A, C, complexo B, ácido fólico, potássio, cálcio</p>
+<p><strong>Poderes:</strong> Melhora memória, protege coração, combate radicais livres, previne câncer de próstata</p>
+<p><em>Encontre em:</em> Tomate, morango, melancia, goiaba, maçã, pimentão vermelho</p>
+</div>
+
+<div class="cor-card cor-roxa">
+<h4>💜 Roxo</h4>
+<p><strong>Rico em:</strong> Resveratrol, antocianinas, ácido elágico, betacaroteno</p>
+<p><strong>Poderes:</strong> Controla glicemia, anti-inflamatório, antioxidante, evita envelhecimento precoce</p>
+<p><em>Encontre em:</em> Repolho roxo, berinjela, beterraba, uva, jabuticaba, cebola roxa, ameixa</p>
+</div>
+</div>
+</div>
+
+<div class="recipe-box secao-refeicoes">
+<strong>⏰ Como Aplicar em Cada Refeição</strong>
+<p>Adapte conforme sua rotina e orçamento, sempre <span class="destaque">buscando o equilíbrio de nutrientes</span> e diferentes grupos alimentares.</p>
+
+<div class="refeicoes-grid">
+<div class="refeicao-card">
+<h3>☕ Café da Manhã</h3>
+<div class="refeicao-conteudo">
+<p><strong>🍓 Frutas e Vitaminas:</strong> Frutas frescas ou secas, geléia sem açúcar, frutas com mel e aveia</p>
+<p><strong>🍞 Energia:</strong> Pão ou torrada integral, tapioca, granola</p>
+<p><strong>🥛 Proteínas:</strong> Leite, iogurte, queijos diversos, ovos mexidos</p>
+</div>
+</div>
+
+<div class="refeicao-card">
+<h3>🍛 Almoço</h3>
+<div class="refeicao-conteudo">
+<p><strong>🥦 Base Nutritiva:</strong> Mix de folhas, saladas diversas, legumes quentes assados, grelhados ou refogados</p>
+<p><strong>🍚 Combustível:</strong> Arroz, massas variadas, purê de batata, mandioca cozida</p>
+<p><strong>🥩 Construção:</strong> Carnes diversas, omeletes, soja, feijão, lentilha</p>
+</div>
+</div>
+
+<div class="refeicao-card">
+<h3>🥗 Jantar</h3>
+<div class="refeicao-conteudo">
+<p><strong>Opção Leve:</strong> Omeletes com legumes, sopas com ingredientes dos diferentes grupos</p>
+<p><strong>Opção Completa:</strong> Similar ao almoço, dando destaque às saladas e frutas</p>
+<p><strong>💤 Dica do Chef:</strong> Refeições mais leves facilitam uma boa noite de sono</p>
+</div>
+</div>
+</div>
+</div>
+
+<div class="recipe-box dicas-finais">
+<strong>🍔 Lanches Inteligentes Entre Refeições</strong>
+<p>Quando a fome bater entre as refeições principais:</p>
+<ul class="dicas-lista">
+<li>Frutas frescas ou salada de frutas</li>
+<li>Chips de legumes assados</li>
+<li>Iogurtes naturais</li>
+<li>Mix de castanhas e nozes</li>
+<li>Chocolate com moderação — prefira maior concentração de cacau ou sem açúcar</li>
+</ul>
+</div>
+
+<div class="recipe-box dicas-finais">
+<strong>💡 Segredos para o Sucesso Duradouro</strong>
+<ul class="dicas-lista">
+<li><strong>Planejamento é essencial:</strong> Monte um cardápio semanal e faça lista de compras</li>
+<li><strong>Flexibilidade na prática:</strong> Adapte as receitas ao seu bolso e rotina</li>
+<li><strong>Moderação, não privação:</strong> Um docinho ocasional não estraga tudo</li>
+<li><strong>Cozinha caseira:</strong> Sempre que possível, prepare em casa com carinho</li>
+<li><strong>Paciência com mudanças:</strong> Comece devagar e seja gentil consigo mesmo</li>
+<li><strong>Diversificação:</strong> Invista na variedade de ingredientes, não apenas em cortes</li>
+<li><strong>Alimentos in natura:</strong> Prefira sempre aos ultraprocessados</li>
+</ul>
+</div>
+
+<div class="recipe-box" style="background:linear-gradient(135deg,#F8F0F8,#F0E0F0);">
+<strong>🔔 Lembre-se Sempre</strong>
+<p>Uma alimentação saudável é muito mais sobre <span class="destaque">diversificar ingredientes</span> do que apenas deixar de comer algo.</p>
+<p style="font-weight:600;color:#6a4c93;margin-top:15px;">Cada pequena mudança conta e sua saúde agradece cada escolha consciente! 🌟</p>
+
+<div class="bom-apetite">
+<span onclick="abrirRemy('imagens/remy.jpg')" style="cursor:pointer;">
+Qualquer um pode cozinhar!
+</span>
+<img src="imagens/assbaron.png" alt="Baron" style="width:70px;height:auto;">
+</div>
+</div>
+
+<!-- Tela Remy -->
+<div id="remyTela">
+<img id="remyImagem" src="">
+</div>
+
+
+<script>
+function abrirRemy(src) {
+const tela = document.getElementById("remyTela");
+const img = document.getElementById("remyImagem");
+img.src = src;
+tela.style.display = "flex";
+
+// fechar se clicar na imagem
+img.onclick = () => fecharRemy();
+
+// fechar se clicar no fundo preto
+tela.onclick = (evento) => {
+if (evento.target === tela) {
+fecharRemy();
+}
+};
+}
+
+function fecharRemy() {
+document.getElementById("remyTela").style.display = "none";
+}
+
+// Marca no sessionStorage que o usuário já viu o conteúdo
+sessionStorage.setItem('splash_visto', 'true');
+</script>
+</body>
+</html>

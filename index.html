@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+<meta name="description" content="MeuChef é um aplicativo para gerar receitas personalizadas com base nos ingredientes que você tem em casa.">
+<meta name="author" content="José Augusto Baron">
+<meta name="mobile-web-app-capable" content="yes">
+<title>MeuChef</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="components/fontawesome/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6a4c93">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MeuChef">
+<link rel="apple-touch-icon" href="imagens/icon-192.png">
+</head>
+
+<body>
+<!-- Splash Screen -->
+<div id="splash-screen">
+<img src="imagens/chefbaron.png" alt="Logo ChefBaron">
+</div>
+
+<!-- Conteúdo principal -->
+<div id="app-content" class="container">
+<img src="imagens/topo.png" alt="MeuChef Logo" class="logotopo">
+<p class="saldavel">
+O chef que entende sua cozinha</p>
+
+<div class="tags">
+<span class="tag" onclick="adicionarSugestao('café expresso cremoso, pão francês com queijo de minas, presunto e frutas frescas variadas — para 2 pessoas')">☕ Café</span>
+<span class="tag" onclick="adicionarSugestao('frango ao molho de mostarda e mel, arroz com alho, batatas assadas e salada fresca de tomates — para 4 pessoas')">🍛 Almoço</span>
+<span class="tag" onclick="adicionarSugestao('filé de peixe assado com ervas aromáticas, purê de batata-baroa e legumes grelhados na manteiga — para 2 pessoas')">🥗 Jantar</span>
+<span class="tag" onclick="adicionarSugestao('tapioca macia recheada com queijo derretido e tomate seco, servida com suco gelado de abacaxi — para 1 pessoa')">🍔 Lanche</span>
+<span class="tag" onclick="adicionarSugestao('caipirinha refrescante de maracujá com hortelã, feita com cachaça artesanal e gelo picado — para 2 pessoas')">🍹 Drink</span>
+<span class="tag" onclick="adicionarSugestao('Torta americana de maçã com massa podre crocante e recheio caramelizado com canela — para toda a família')">🍰 Doce</span>
+<span class="tag" onclick="adicionarSugestao('medalhão de filé mignon ao molho de vinho com risoto de parmesão cremoso e toque de ervas — jantar especial a dois')">🍷 Especial</span>
+<span class="tag" onclick="adicionarSugestao('escondidinho de lentilha temperada com ervas e purê de batata-doce gratinado — sem lactose e sem origem animal')">🥛 Restrições</span>
+
+<p class="alimentacao" style="width: 100%; text-align: center; margin: 8px 0;">
+<a href="saude.html" style="text-decoration: none; color: inherit;">A base da alimentação saudável 🥑</a>
+</p>
+<span class="tag" onclick="refreshApp()" style="cursor: pointer;">✨ Limpar a cozinha</span>
+<span class="tag" onclick="mostrarFavoritosComBusca()" style="cursor: pointer;">❤️ Favoritas</span>
+<!-- Modal de Favoritos -->
+<div id="modalFavoritos" class="modal-favoritos oculto">
+<div class="modal-conteudo">
+
+<div class="modal-header">
+<h3 style="margin-bottom: 16px;">❤️ Receitas Favoritas</h3>
+<div class="botoes-receita">
+<button class="botao-padrao" onclick="exportarFavoritosComCategorias()">
+<i class="fas fa-file-export"></i> Exportar
+</button>
+<button class="botao-padrao" onclick="document.getElementById('inputImportar').click()">
+<i class="fas fa-file-import"></i> Importar
+</button>
+<button class="botao-padrao" onclick="fecharModalFavoritos()">
+🛒 Cozinha
+</button>
+</div>
+<input type="file" id="inputImportar" accept=".json" onchange="importarFavoritos(event)" style="display: none;">
+</div>
+
+<!-- Lista de receitas favoritas -->
+<div id="listaTitulosFavoritos" class="lista-titulos"></div>
+
+<!-- Detalhe da receita favorita -->
+<div id="receitaCompletaFavorito" class="detalhe-receita oculto">
+<div class="botoes-acao-favorito"></div>
+<div id="conteudoReceitaFavorito" class="conteudo-receita-favorito"></div>
+</div>
+</div>
+</div>
+
+<div class="input-container">
+<textarea
+id="userInput" 
+placeholder="digite o que você quer comer — um prato salgado? uma sobremesa? quantas pessoas vai servir? tem alguma restrição?"></textarea>
+</div>
+
+<div class="botoes-empilhados">
+<div class="linha-botao">
+<button onclick="gerarReceita(event)">🥘 Crie uma receita pra mim</button>
+</div>
+</div>
+
+<div id="opcoes" class="opcoes oculto">
+<button class="secondary-btn linha-botao" id="btnGerarNova" onclick="gerarOutraReceita()">🥣 Tente algo diferente</button>
+</div>
+
+<div id="mensagemAlerta" class="alerta-oculto">✍️ Digite os ingredientes ou tipo de prato</div>
+
+<div id="resultado" class="resultado empty">o que tem na sua cozinha, o que você curte 😋 prefere doce, salgado, tem alguma restrição 🧀 quantos vai alimentar — vou criar uma receita só sua ❤️</div>
+
+<!-- ELEMENTO QUE ESTAVA FALTANDO -->
+<div id="imagemInicial" class="assinatura">
+    <span onclick="abrirRemy('imagens/remy.mp4')" style="cursor:pointer;">
+        Qualquer um pode cozinhar!
+    </span>
+    <img src="imagens/assbaron.png" alt="baron" class="emoji-img">
+</div>
+
+<!-- Tela Remy CORRETA (mantenha apenas esta) -->
+<div id="remyTela" style="display:none; align-items:center; justify-content:center; position:fixed; top:0; left:0; width:100%; height:100%; background:black; z-index:9999;">
+  <img id="remyImagem" src="" style="display:none; width:100%; height:100%; object-fit:cover; cursor:pointer;">
+  <video id="remyVideo" style="display:none; width:100%; height:100%; object-fit:cover; cursor:pointer;" playsinline>
+  <source src="" type="video/mp4">
+  Seu navegador não suporta vídeos em HTML5.
+</video>
+</div>
+
+<div id="customModal" class="modal">
+<div class="modal-content">
+<span class="close-button">&times;</span>
+<p id="modalMessage"></p>
+</div>
+</div>
+
+<script>
+document.addEventListener('deviceready', () => {
+document.addEventListener('backbutton', (event) => {
+// Se o modal de favoritos estiver aberto, fecha ele
+const modalFavoritos = document.getElementById('modalFavoritos');
+if (modalFavoritos && !modalFavoritos.classList.contains('oculto')) {
+event.preventDefault();
+fecharModalFavoritos();
+return;
+}
+
+// Se a receita favorita estiver aberta em detalhe, volta para a lista
+const receitaCompleta = document.getElementById('receitaCompletaFavorito');
+if (receitaCompleta && !receitaCompleta.classList.contains('oculto')) {
+event.preventDefault();
+voltarParaListaFavoritos();
+return;
+}
+
+// Caso contrário, você pode decidir:
+// - Sair do app
+// - Ou impedir de voltar para saude.html
+event.preventDefault(); // Evita voltar para saude.html
+// navigator.app.exitApp(); // <- descomente se quiser fechar o app
+}, false);
+});
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')  // ← só muda essa linha
+      .then(reg => console.log('Service Worker registrado!', reg))
+      .catch(err => console.error('Erro ao registrar SW:', err));
+  });
+}
+</script>
+
+<script src="components/config.js"></script>
+<script src="components/script.js"></script>
+</body>
+</html>
