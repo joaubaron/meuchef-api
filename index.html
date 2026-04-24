@@ -116,45 +116,6 @@ placeholder="digite o que você quer comer — um prato salgado? uma sobremesa? 
 </div>
 
 <script>
-// ====================== PULL-TO-REFRESH (sem scroll normal) ======================
-let pullStartY = 0;
-let isPulling = false;
-
-document.addEventListener('touchstart', (e) => {
-    // Só ativa o pull se estiver no TOPO da página
-    if (document.querySelector('.container').scrollTop === 0) {
-        pullStartY = e.touches[0].clientY;
-        isPulling = true;
-    }
-});
-
-document.addEventListener('touchmove', (e) => {
-    if (isPulling && document.querySelector('.container').scrollTop === 0) {
-        const currentY = e.touches[0].clientY;
-        const pullDistance = currentY - pullStartY;
-        
-        // Se puxou para baixo (pullDistance > 0), NÃO deixa a tela rolar
-        if (pullDistance > 0) {
-            e.preventDefault();
-        }
-    }
-});
-
-document.addEventListener('touchend', (e) => {
-    if (isPulling && document.querySelector('.container').scrollTop === 0) {
-        const pullEndY = e.changedTouches[0].clientY;
-        const pullDistance = pullEndY - pullStartY;
-        
-        if (pullDistance > 80) {
-            window.location.reload(true);
-        }
-    }
-    isPulling = false;
-    pullStartY = 0;
-});
-</script>
-
-<script>
 document.addEventListener('deviceready', () => {
 document.addEventListener('backbutton', (event) => {
 // Se o modal de favoritos estiver aberto, fecha ele
