@@ -1708,7 +1708,12 @@ function importarFavoritos(event) {
             }
 
             if (receitasParaImportar) {
-                const receitasExistentes = JSON.parse(localStorage.getItem('receitasFavoritas')) || [];
+                let receitasExistentes;
+                try {
+                    receitasExistentes = JSON.parse(localStorage.getItem('receitasFavoritas')) || [];
+                } catch (e) {
+                    receitasExistentes = AppState.receitasFavoritas || [];
+                }
 
                 function extrairIngredientes(html) {
                     if (!html) return [];
@@ -2015,7 +2020,20 @@ function adicionarSugestao(sugestao) {
 
 // === INITIALIZATION ===
 document.addEventListener('DOMContentLoaded', function() {
-    AppState.receitasFavoritas = JSON.parse(localStorage.getItem('receitasFavoritas')) || [];
+    // Solicita armazenamento persistente ao Android/Chrome para evitar limpeza automática
+    if (navigator.storage && navigator.storage.persist) {
+        navigator.storage.persist().then(granted => {
+            console.log(`Storage persistente: ${granted ? '✅ protegido' : '⚠️ pode ser limpo pelo sistema'}`);
+        });
+    }
+
+    try {
+        AppState.receitasFavoritas = JSON.parse(localStorage.getItem('receitasFavoritas')) || [];
+    } catch (e) {
+        console.error('Erro ao ler favoritos do localStorage:', e);
+        AppState.receitasFavoritas = [];
+        showCustomModal('⚠️ Dados não puderam ser lidos. Importe seu backup JSON.');
+    }
     migrarReceitasAntigas();
 
     window.exportarFavoritos = exportarFavoritosComCategorias;
